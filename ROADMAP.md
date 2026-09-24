@@ -1,5 +1,9 @@
 # Roadmap
 
+## Repositório
+
+- [x] Projeto publicado em `https://github.com/murilo-simio/duel`, branch `main`, com testes, documentação e código do app.
+
 ## MVP implementado
 
 - [x] Correção da logo: elemento sem navegação; clicar não abre o diretório nem reinicia a sessão.
