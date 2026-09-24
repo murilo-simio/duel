@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#151714" />
+    <title>Duelo — seu bracket de favoritos</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="bracket.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <header class="header">
+      <span class="brand"
+        ><span class="brand-icon">d.</span>duelo<span class="brand-dot"
+          >®</span
+        ></span
+      ><span class="header-note">ESCOLHAS DIFÍCEIS. UM FAVORITO.</span
+      ><span class="local-badge"><i></i> Tudo fica no seu navegador</span>
+    </header>
+    <main>
+      <section class="intro">
+        <div class="eyebrow">
+          <span>01 — UPLOAD</span><span>02 — CONFRONTOS</span
+          ><span>03 — CLASSIFICAÇÃO</span>
+        </div>
+        <h1>Que vença o seu<br /><em>favorito.</em></h1>
+        <p>
+          Transforme suas imagens em um campeonato.<br />Coloque lado a lado.
+          Vote. Descubra quem fica no topo.
+        </p>
+      </section>
+      <section id="setup" aria-label="Montar campeonato">
+        <div class="section-heading">
+          <h2>Seu campeonato</h2>
+          <span id="image-count">Nenhuma imagem ainda</span>
+        </div>
+        <label class="upload-zone" id="dropzone" for="image-input"
+          ><span class="upload-icon">↥</span
+          ><strong>Solte suas imagens aqui</strong
+          ><span>ou <u>escolha os arquivos</u> no seu dispositivo</span
+          ><small
+            >JPG, PNG, WEBP, GIF e AVIF · de 2 a 64 imagens · até 10 MB
+            cada</small
+          ></label
+        >
+        <input
+          id="image-input"
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+          multiple
+          class="visually-hidden"
+        />
+        <div id="image-list" class="image-list"></div>
+        <div class="setup-actions">
+          <p>
+            <span class="tiny-star">✳</span> A ordem dos confrontos é sempre
+            sorteada.
+          </p>
+          <button class="button primary" id="generate" disabled>
+            Montar bracket <span>↗</span>
+          </button>
+        </div>
+      </section>
+      <section id="overview" hidden>
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">O CAMINHO ATÉ O TOPO</span>
+            <h2>O palco está pronto.</h2>
+          </div>
+          <button class="button subtle" id="edit-images">
+            ← Editar imagens
+          </button>
+        </div>
+        <div class="bracket-shell">
+          <div id="bracket" class="bracket"></div>
+        </div>
+        <p class="rules-note">
+          Vitória × vitória · Empate × empate · Derrota × derrota<br />As
+          próximas rodadas são sorteadas após os resultados. Vitória: 3 pts ·
+          Empate: 1 pt.
+        </p>
+        <div class="start-controls">
+          <span id="mode-summary" class="muted"
+            >Modo simples · um clique decide</span
+          ><button class="button primary large" id="start">
+            Começar <span>→</span></button
+          ><button class="text-button" id="configure">
+            ⚙ Configurar participantes</button
+          ><button class="text-button muted" id="shuffle">
+            ↻ Sortear novamente
+          </button>
+        </div>
+      </section>
+      <section id="voting" hidden>
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow" id="round-label"></span>
+            <h2 id="vote-title">Quem merece avançar?</h2>
+          </div>
+          <span class="pill" id="match-progress"></span>
+        </div>
+        <div class="progress-track"><div id="progress-fill"></div></div>
+        <p id="voter-prompt" class="voter-prompt" aria-live="polite"></p>
+        <div class="arena">
+          <button class="contender" id="choose-left"></button
+          ><span class="versus">VS</span
+          ><button class="contender" id="choose-right"></button>
+        </div>
+        <div id="vote-feedback" class="vote-feedback" aria-live="polite"></div>
+        <div id="match-result" class="match-result" hidden>
+          <p id="result-text"></p>
+          <button class="button primary" id="next-match">
+            Próximo confronto →
+          </button>
+        </div>
+        <details class="live-bracket">
+          <summary>Ver andamento do bracket</summary>
+          <div class="bracket-shell">
+            <div id="live-bracket" class="bracket"></div>
+          </div>
+        </details>
+      </section>
+      <section id="finish" class="finish" hidden>
+        <span class="eyebrow">CADA DUELO CONTA.</span>
+        <h1>Seu ranking de <em>favoritos.</em></h1>
+        <div id="champion"></div>
+        <p id="champion-summary"></p>
+        <div class="finish-actions">
+          <button id="replay" class="button primary">Jogar novamente ↻</button
+          ><button id="new-tournament" class="button subtle">
+            Novo campeonato
+          </button>
+        </div>
+        <div class="bracket-shell">
+          <div id="final-bracket" class="bracket"></div>
+        </div>
+      </section>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </main>
+    <footer>
+      <span class="brand footer-brand">duelo.</span
+      ><span>De tantos favoritos, sobra um.</span
+      ><span>Feito para decidir juntos ↗</span>
+    </footer>
+    <dialog id="settings">
+      <form id="settings-form">
+        <div class="dialog-heading">
+          <div>
+            <span class="eyebrow">MELHOR EM GRUPO</span>
+            <h2>Configure seu campeonato</h2>
+          </div>
+          <button
+            type="button"
+            class="close"
+            id="close-settings"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+        </div>
+        <p class="muted">
+          Cada pessoa vota uma vez por confronto. Na próxima rodada: vitória ×
+          vitória, empate × empate, derrota × derrota. Grupos ímpares completam
+          os duelos por sorteio.
+        </p>
+        <label class="field-label" for="round-count">Número de rodadas</label>
+        <input id="round-count" type="number" min="1" step="1" aria-describedby="round-help" />
+        <p id="round-help" class="muted">Deixe em branco para calcular automaticamente.</p>
+        <label class="field-label" for="voter-count"
+          >Número de participantes</label
+        ><input
+          id="voter-count"
+          type="number"
+          min="1"
+          max="20"
+          value="2"
+          required
+        />
+        <div id="voter-fields"></div>
+        <div class="dialog-actions">
+          <button type="button" id="simple-mode" class="button subtle">
+            Usar modo simples</button
+          ><button class="button primary" type="submit">
+            Salvar configuração
+          </button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>
