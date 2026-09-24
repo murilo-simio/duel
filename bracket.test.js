@@ -108,3 +108,40 @@ test("rejeita entradas e rodadas incompletas", () => {
   assert.throws(() => advance(tournament, 0, 0, 2));
   assert.throws(() => prepareNextRound(tournament));
 });
+
+test("Endless ultrapassa 100 rodadas empatadas e termina quando o ranking desempata", () => {
+  const tournament = createTournament([{ id: "a" }, { id: "b" }], Math.random, 1, true);
+  for (let round = 0; round < 101; round++) {
+    advance(tournament, round, 0, null, [1, 1]);
+    assert.equal(prepareNextRound(tournament), true);
+  }
+  advance(tournament, 101, 0, 0);
+  assert.equal(prepareNextRound(tournament), false);
+  assert.equal(tournament.rounds.length, 102);
+});
+
+test("Endless verifica empates abaixo da liderança e espera concluir a rodada", () => {
+  const tournament = createTournament(Array.from({ length: 4 }, (_, id) => ({ id })), () => 0.5, 1, true);
+  advance(tournament, 0, 0, 0);
+  advance(tournament, 0, 1, null, [1, 1]);
+  assert.deepEqual(standings(tournament).map(entry => entry.points), [3, 1, 1, 0]);
+  assert.equal(prepareNextRound(tournament), true);
+  assert.throws(() => prepareNextRound(tournament), /Conclua/);
+  tournament.rounds[1].forEach((match, index) => advance(tournament, 1, index, 0));
+  assert.equal(new Set(standings(tournament).map(entry => entry.points)).size, 4);
+  assert.equal(prepareNextRound(tournament), false);
+});
+
+test("Endless pode terminar antes do limite configurado e contabiliza folgas", () => {
+  const tournament = createTournament(Array.from({ length: 3 }, (_, id) => ({ id })), () => 0.5, 100, true);
+  advance(tournament, 0, 0, null);
+  assert.equal(prepareNextRound(tournament), true);
+  advance(tournament, 1, 0, 0);
+  const shouldContinue = new Set(standings(tournament).map(entry => entry.points)).size < 3;
+  assert.equal(prepareNextRound(tournament), shouldContinue);
+  assert.equal(standings(tournament).reduce((sum, entry) => sum + entry.byes, 0), 2);
+  const pair = createTournament([{ id: "a" }, { id: "b" }], Math.random, 100, true);
+  advance(pair, 0, 0, 0);
+  assert.equal(prepareNextRound(pair), false);
+  assert.equal(pair.rounds.length, 1);
+});

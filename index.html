@@ -164,6 +164,11 @@
           vitória, empate × empate, derrota × derrota. Grupos ímpares completam
           os duelos por sorteio.
         </p>
+        <label class="endless-option" for="endless-mode">
+          <input id="endless-mode" type="checkbox" aria-describedby="endless-help" />
+          <span>Modo Endless</span>
+        </label>
+        <p id="endless-help" class="muted">Sem limite de rodadas: termina ao concluir uma rodada sem imagens empatadas em pontos na classificação.</p>
         <label class="field-label" for="round-count">Número de rodadas</label>
         <input id="round-count" type="number" min="1" step="1" aria-describedby="round-help" />
         <p id="round-help" class="muted">Deixe em branco para calcular automaticamente.</p>

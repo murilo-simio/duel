@@ -1,4 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+.endless-option { display: flex; align-items: center; gap: 10px; margin-top: 20px; cursor: pointer; }
+.endless-option input { width: 18px; height: 18px; accent-color: var(--accent); }
+#round-count:disabled { opacity: .4; cursor: not-allowed; }
 :root {
   color-scheme: dark;
   --bg: #151714;

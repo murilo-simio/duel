@@ -12,6 +12,7 @@ const $ = (id) => document.getElementById(id);
 let entries = [];
 let voters = [];
 let requestedRounds = null;
+let endlessMode = false;
 let tournament = null;
 let activeMatch = null;
 let votes = [];
@@ -127,7 +128,7 @@ function renderBracket(target) {
   });
 }
 function buildTournament() {
-  tournament = Bracket.createTournament(entries, Math.random, requestedRounds);
+  tournament = Bracket.createTournament(entries, Math.random, requestedRounds, endlessMode);
   renderBracket("bracket");
   showScreen("overview");
   updateMode();
@@ -136,14 +137,20 @@ function updateMode() {
   const mode = voters.length
     ? `Modo em grupo · ${voters.length} ${voters.length === 1 ? "participante" : "participantes"}`
     : "Modo simples · um clique decide";
-  $("mode-summary").textContent = `${mode} · ${tournament.roundLimit} ${tournament.roundLimit === 1 ? "rodada" : "rodadas"}${requestedRounds === null ? " (automático)" : ""}`;
+  const rounds = endlessMode ? "Endless · até não haver empates" : `${tournament.roundLimit} ${tournament.roundLimit === 1 ? "rodada" : "rodadas"}${requestedRounds === null ? " (automático)" : ""}`;
+  $("mode-summary").textContent = `${mode} · ${rounds}`;
+}
+function updateRoundInput() {
+  $("round-count").disabled = $("endless-mode").checked;
 }
 function saveRoundSettings() {
   const input = $("round-count");
   if (!input.reportValidity()) return false;
-  const selectedRounds = input.value === "" ? null : Number(input.value);
+  const selectedRounds = $("endless-mode").checked ? requestedRounds : input.value === "" ? null : Number(input.value);
   tournament.roundLimit = Bracket.resolveRoundLimit(entries.length, selectedRounds);
   requestedRounds = selectedRounds;
+  endlessMode = $("endless-mode").checked;
+  tournament.endless = endlessMode;
   renderBracket("bracket");
   return true;
 }
@@ -192,8 +199,13 @@ function showMatch() {
     .filter((item) => item.completed && !item.automatic).length;
   const totalMatches = Math.floor(entries.length / 2) * tournament.roundLimit;
   $("match-progress").textContent =
-    `Confronto ${finished + 1} de ${totalMatches}`;
-  $("progress-fill").style.width = `${(finished / totalMatches) * 100}%`;
+    tournament.endless ? `Confronto ${finished + 1} · Endless` : `Confronto ${finished + 1} de ${totalMatches}`;
+  const roundMatches = tournament.rounds[activeMatch.round].filter(item => !item.automatic);
+  const progress = tournament.endless
+    ? roundMatches.filter(item => item.completed).length / roundMatches.length
+    : finished / totalMatches;
+  $("progress-fill").style.width = `${progress * 100}%`;
+  $("progress-fill").parentElement.setAttribute("aria-label", tournament.endless ? "Progresso da rodada atual" : "Progresso do campeonato");
   ["choose-left", "choose-right"].forEach((id, side) => {
     const button = $(id);
     button.disabled = false;
@@ -300,7 +312,7 @@ function finishTournament() {
     $("champion").append(row);
   });
   $("champion-summary").textContent =
-    `${entries.length} imagens · ${tournament.roundLimit} rodadas · Vitória: 3 pts · Empate: 1 pt · Derrota e folga: 0 pts. Pontuações iguais dividem a posição.`;
+    `${entries.length} imagens · ${tournament.rounds.length} rodadas${tournament.endless ? " · Endless concluído: classificação sem empates" : ""} · Vitória: 3 pts · Empate: 1 pt · Derrota e folga: 0 pts.${tournament.endless ? "" : " Pontuações iguais dividem a posição."}`;
   renderBracket("final-bracket");
   showScreen("finish");
 }
@@ -325,6 +337,8 @@ $("shuffle").onclick = buildTournament;
 $("edit-images").onclick = () => showScreen("setup");
 $("start").onclick = showMatch;
 $("configure").onclick = () => {
+  $("endless-mode").checked = endlessMode;
+  updateRoundInput();
   $("round-count").max = Bracket.MAX_ROUNDS;
   $("round-count").value = requestedRounds ?? "";
   $("round-count").placeholder = `Automático: ${Bracket.resolveRoundLimit(entries.length)}`;
@@ -335,6 +349,7 @@ $("configure").onclick = () => {
   $("settings").showModal();
 };
 $("voter-count").addEventListener("input", renderVoterFields);
+$("endless-mode").addEventListener("change", updateRoundInput);
 $("close-settings").onclick = () => $("settings").close();
 $("settings-form").onsubmit = (event) => {
   event.preventDefault();
@@ -368,5 +383,6 @@ $("new-tournament").onclick = () => {
   voters = [];
   renderImages();
   requestedRounds = null;
+  endlessMode = false;
   showScreen("setup");
 };

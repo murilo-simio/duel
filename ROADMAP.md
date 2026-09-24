@@ -6,6 +6,8 @@
 
 ## MVP implementado
 
+- [x] Modo Endless opcional. Aceite: ignora limite de rodadas, continua enquanto houver qualquer pontuação repetida no ranking e encerra somente após uma rodada completa sem empates; funciona nos modos simples e em grupo, mantém agrupamento existente, preserva a opção no replay e redefine no novo campeonato.
+
 - [x] Correção da logo: elemento sem navegação; clicar não abre o diretório nem reinicia a sessão.
 
 - [x] Upload múltiplo e arrastar/soltar. Aceite: 2–64 imagens, limite de 10 MB, prévias, remoção e mensagens de falha.

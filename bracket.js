@@ -28,13 +28,14 @@
       });
     return matches;
   }
-  function createTournament(entries, random = Math.random, requestedRounds = null) {
+  function createTournament(entries, random = Math.random, requestedRounds = null, endless = false) {
     if (entries.length < 2 || entries.length > 64)
       throw new Error("Use de 2 a 64 imagens.");
     return {
       rounds: [makeRound(entries, random)],
       entries: [...entries],
       count: entries.length,
+      endless,
       roundLimit: resolveRoundLimit(entries.length, requestedRounds),
       random,
       records: Object.fromEntries(
@@ -79,7 +80,10 @@
         .forEach((match) => tournament.records[match.entries[0].id].byes++);
       previous.accounted = true;
     }
-    if (tournament.rounds.length >= tournament.roundLimit) return false;
+    if (tournament.endless) {
+      const points = tournament.entries.map(entry => tournament.records[entry.id].points);
+      if (new Set(points).size === points.length) return false;
+    } else if (tournament.rounds.length >= tournament.roundLimit) return false;
     const groups = { win: [], tie: [], loss: [] };
     previous.forEach((match) => {
       if (match.automatic) {
@@ -125,6 +129,7 @@
       .sort((left, right) => right.points - left.points);
   }
   function roundName(tournament, round) {
+    if (tournament.endless) return `Rodada ${round + 1} · Endless`;
     return `Rodada ${round + 1} de ${tournament.roundLimit}`;
   }
   const api = {

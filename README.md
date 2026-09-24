@@ -16,6 +16,10 @@ Imagens ficam em URLs locais temporárias, sem envio a servidor. Recarregar apag
 
 ## Arquivos
 
+### Modo Endless
+
+Nas configurações, ative **Modo Endless** para substituir o limite de rodadas. Ao final de cada rodada completa, o app verifica todas as pontuações: se duas ou mais imagens estiverem empatadas, sorteia outra rodada com o agrupamento habitual por resultado anterior. Encerra quando todas tiverem pontuações diferentes, inclusive nas posições abaixo do primeiro lugar. O progresso mostra a rodada atual. Não há limite máximo nesse modo; empates persistentes podem manter a votação indefinidamente. Desative a opção para voltar às rodadas automáticas ou personalizadas. Funciona com votação simples e em grupo.
+
 - `bracket.js`: sorteio, grupos, pontuação e rodadas.
 - `app.js`: upload, configurações e interface.
 - `styles.css` e `STYLE.md`: regras visuais.
